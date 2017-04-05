@@ -7,6 +7,7 @@ from threading import Thread
 from threading import Thread
 from time import sleep
 import time
+import sys
 from db import DbInstance
 
 HOST, PORT = "", 5000
@@ -15,7 +16,6 @@ q = Queue(maxsize=0)
 
 class No2Handler(SocketServer.BaseRequestHandler, object):
     def saveNo2(self, id, no2_con):
-        print no2_con
         no2_data = {}
         no2_data["id"] = id
         no2_data["t"] = int(time.time())
@@ -23,13 +23,11 @@ class No2Handler(SocketServer.BaseRequestHandler, object):
         no2_data["min"] = min(no2_con)
         no2_data["std"] = np.std(no2_con)
         no2_data["mean"] = np.mean(no2_con)
-        
         q.put(no2_data)
 
     def handle(self):
         client = self.request
         client.settimeout(3.0)
-        print client.gettimeout()
         address = self.client_address[0]
         no2_con = []
         try:
@@ -40,7 +38,6 @@ class No2Handler(SocketServer.BaseRequestHandler, object):
             cnt = 0
             while True:
                 nbytes, address = client.recvfrom_into(buffer, 4)
-                print nbytes, address
                 no2 = buffer
                 if nbytes == 0:
                     break
@@ -48,6 +45,7 @@ class No2Handler(SocketServer.BaseRequestHandler, object):
                 no2_con.append( no2 )
                 if len(no2_con) == 60:
                     self.saveNo2 ( id, no2_con )
+                    no2_con = []
         finally:
             client.close()
             

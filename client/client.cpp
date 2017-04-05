@@ -51,8 +51,12 @@ int main(int argv, char * argc [])
         exit(3);
     }
     
-    int numbytes = 1;
-    send(socket_id,&id,sizeof(int),0);
+    int numbytes = 0;
+    numbytes = send(socket_id,&id,sizeof(int),0);
+    if ( numbytes == -1 ) 
+    {
+        printf ( "huh? %d\n", numbytes );
+    }
     float buf = 0;
     unsigned char data[sizeof(buf)];
     for ( int i=0;i<181;++i )
@@ -62,11 +66,10 @@ int main(int argv, char * argc [])
         numbytes = send(socket_id,&buf,sizeof(float),0);
         if(numbytes == -1)
         {
-            fprintf(stderr, "Error receive \n");
-            exit(4);
+            fprintf(stderr, "Error receive %d\n", id);
+            //exit(4);
         }
         memcpy ( data, &buf, sizeof (float) );
-        printf ( "%f sent %d %d %d %d\n", buf, data[0], data[1],data[2],data[3] );
         sleep(1);
     }
     freeaddrinfo(res);

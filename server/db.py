@@ -18,7 +18,6 @@ class DbInstance(object):
         self.conn.close()
 
     def insert( self, data ):
-        print "%d %d %f %f %f %f" % ( data["id"], data["t"], data["max"], data["min"], data["std"], data["mean"] )
         self.c.execute("INSERT INTO no2_data VALUES (?,?,?,?,?,?)", ( data["id"], data["t"], data["max"], data["min"], data["std"], data["mean"] ))
     def commit( self ):
         print "commit"
