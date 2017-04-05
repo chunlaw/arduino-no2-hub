@@ -1,6 +1,6 @@
 # Arduino NO2 Hub #
 
-The project is targeted on building a server to centralize NO2 concentration data from ~100 Arduino NO2 sensors per second.
+The project is targeted on building a server to centralize NO2 concentration data from 100~500 Arduino NO2 sensors per second.
 
 Currently, it is only basic testing on socket programming. Silly one. Will extend to db in server and arduino client code later.
 
