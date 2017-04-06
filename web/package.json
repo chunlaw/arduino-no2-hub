@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "watch": "webpack --progress --color --watch",
-    "bundle": "webpack --progress --color",
+    "start": "NODE_ENV=production webpack -p --progress --color && node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "watch": "NODE_ENV=development webpack --progress --color --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "css-loader": "^0.28.0",
+    "mustache-express": "^1.2.4",
     "style-loader": "^0.16.1",
     "webpack": "^2.3.2"
   }

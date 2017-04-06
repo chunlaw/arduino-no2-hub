@@ -1,4 +1,4 @@
-require("!style-loader!css-loader!./style.css");
+require("!style-loader!css-loader!../css/style.css");
 import Vue from 'vue';
 import axios from 'axios';
 
@@ -10,7 +10,6 @@ function initMap() {
     });
 
     axios.get('/api/list').then(function(res) {
-        console.log(res.data);
         for (var i in res.data) {
             var data = res.data[i];
             var marker = new google.maps.Marker({

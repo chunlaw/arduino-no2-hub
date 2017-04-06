@@ -1,20 +1,28 @@
 var express = require('express');
 var sqlite3 = require('sqlite3');
+var mustacheExpress = require('mustache-express');
+var process = require('process');
 var config = require('./config.js');
 
+const NODE_ENV = process.env.NODE_ENV || 'production';
 var db = new sqlite3.Database(config.dbPath);
 var app = express();
 
 var server = app.listen(8080, function () {
-   var host = server.address().address
-   var port = server.address().port
-   console.log("listening at http://%s:%s", host, port)
+   var host = server.address().address;
+   var port = server.address().port;
+   console.log("listening at http://%s:%s", host, port);
 })
 
-app.use('/static', express.static('app/public'))
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+
+app.use('/static', express.static('app/public'));
+app.set('views', 'app/mustache')
 
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/app/index.html');
+    var bundleFile = NODE_ENV === 'production' ? 'bundle.min.js' : 'bundle.js';
+    res.render('index.mustache', {bundle: bundleFile});
 })
 
 app.get('/api/list', function(req, res) {
