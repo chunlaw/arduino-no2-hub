@@ -4,7 +4,6 @@ import struct
 import numpy as np
 from multiprocessing import Queue
 from threading import Thread
-from threading import Thread
 from time import sleep
 import time
 import sys
