@@ -15,7 +15,15 @@ function initMap() {
             var marker = new google.maps.Marker({
                 position: {lat: data.lat, lng: data.long},
                 map: mapObj,
-                title: '' + data.mean
+                label: new google.maps.Point(0, 30),
+                icon: {
+                    fillColor: 'red',
+                    fillOpacity: 0.9,
+                    path: "M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z"
+                },
+                label: {
+                    text: '' + data.mean.toFixed(2)
+                }
             });
         }
     });
