@@ -8,12 +8,16 @@ from time import sleep
 import time
 import sys
 from db import DbInstance
+from bot import No2Bot
 
 HOST, PORT = "", 5000
 
 q = Queue(maxsize=0)
 
 class No2Handler(SocketServer.BaseRequestHandler, object):
+    tbot = No2Bot("no2.db")
+    tbot.run()
+
     def saveNo2(self, id, no2_con):
         no2_data = {}
         no2_data["id"] = id
@@ -34,6 +38,7 @@ class No2Handler(SocketServer.BaseRequestHandler, object):
             client.recvfrom_into(buffer,4)
             id = buffer
             id = struct.unpack('i', id)[0]
+            self.tbot.sendConnectionMessage(id, 1)
             cnt = 0
             while True:
                 nbytes, address = client.recvfrom_into(buffer, 4)
@@ -46,6 +51,7 @@ class No2Handler(SocketServer.BaseRequestHandler, object):
                     self.saveNo2 ( id, no2_con )
                     no2_con = []
         finally:
+            self.tbot.sendConnectionMessage(id, 0)
             client.close()
             
 
