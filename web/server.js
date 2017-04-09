@@ -36,15 +36,16 @@ app.get('/api/list', function(req, res) {
          FROM
          (SELECT id, mean, timestamp
          FROM no2_data
-         ORDER BY timestamp ASC) AS nd
-         JOIN sensor_location sl
-         ON sl.id = sl.id
-         GROUP BY sl.id
+         GROUP BY id
+         ORDER BY timestamp DESC) AS nd
+         INNER JOIN sensor_location sl
+         ON nd.id = sl.id
          ORDER BY sl.id`,
         function(err, rows) {
             if (err) {
                 console.log(err);
             }
             res.json(rows);
-    });
+        }
+    );
 });
