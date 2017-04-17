@@ -1,3 +1,20 @@
+#app {
+    width: 1024px;
+    margin: 0 auto;
+}
+
+#chart {
+    width: 1024px;
+}
+
+#chart div {
+    vertical-align: bottom;
+    display: inline-block;
+    width: 10px;
+    background-color: red;
+    margin: 2px;
+}
+
 #map {
     width: 100%;
     height: 100%;
