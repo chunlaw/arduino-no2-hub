@@ -37,9 +37,12 @@ class No2Bot:
                 self.bot.sendMessage(chat_id, 'Please enter your arduino UUID with \'/setup <UUID>\'')
             else:
                 db = DbInstance(self.dbname)
-                db.update_device(chat_id, cmds[1])
+                flag = db.update_device(chat_id, cmds[1])
                 self.c_u[str(chat_id)] = cmds[1]
-                self.bot.sendMessage(chat_id, 'Device %s registered successfully! Please send me the GPS location' % cmds[1])
+                if flag:
+                    self.bot.sendMessage(chat_id, 'Device %s registered successfully! Please send me the GPS location' % cmds[1])
+                else:
+                    self.bot.sendMessage(chat_id, 'Device %s is not registered! Please send me correct ID' % cmds[1])
         else:
             print 'Command not supported'
     
