@@ -1,5 +1,4 @@
 require("!style-loader!css-loader!../css/style.css");
-import Vue from 'vue';
 import axios from 'axios';
 import Chart from 'chart.js';
 
@@ -13,9 +12,9 @@ const COLORS = [
 ];
 const MIN = 0.23;
 const MAX = 0.34;
+const REFRESH_INTERVAL = 10;
 
 let ctx = document.getElementById("chart");
-
 let chartObj = new Chart(ctx, {
     type: 'bar',
     data: [],
@@ -30,21 +29,31 @@ let chartObj = new Chart(ctx, {
         }
     }
 });
+let mapObj;
+let selectedId = '';
 
-var mapObj;
 function initMap() {
     mapObj = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 22.340880, lng: 114.114522},
         zoom: 11
     });
+    updateMapMarkers();
+    setInterval(function() {
+        updateMapMarkers();
+        if (selectedId) {
+            updateChart(selectedId);
+        }
+    }, REFRESH_INTERVAL * 1000);
+}
 
+function updateMapMarkers() {
     axios.get('/api/list').then(function(res) {
-        for (var i in res.data) {
-            var data = res.data[i];
-            var colorIndex = Math.floor(
+        for (let i in res.data) {
+            let data = res.data[i];
+            let colorIndex = Math.floor(
                 COLORS.length * (data.mean - MIN) / (MAX - MIN)
             );
-            var marker = new google.maps.Marker({
+            let marker = new google.maps.Marker({
                 position: {lat: data.lat, lng: data.long},
                 map: mapObj,
                 label: new google.maps.Point(0, 30),
@@ -61,14 +70,15 @@ function initMap() {
             });
             marker.addListener('click', function(id) {
                 return function() {
-                    getLocationDataById(id);
+                    selectedId = id;
+                    updateChart(id);
                 };
             }(data.id));
         }
     });
 }
 
-function getLocationDataById(id) {
+function updateChart(id) {
     axios.get('/api/get?id=' + id + '&page=1&per-page=80').then(function(res) {
         let data = res.data;
         let ctx = document.getElementById("chart");
@@ -96,7 +106,7 @@ function getLocationDataById(id) {
             }
         });
     });
-};
+}
 
 function getColor(i) {
     let colorIndex = Math.floor(
@@ -120,12 +130,5 @@ function getTimeDisplay(timestamp) {
     let year = dateTime.getFullYear();
     return `${day}-${month}-${year} ${hour}:${minute}:${second}`;
 }
-
-new Vue({
-    el: '#app',
-    data: {
-        'message': 'OMG'
-    }
-});
 
 window.initMap = initMap;
