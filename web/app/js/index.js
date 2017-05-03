@@ -31,6 +31,7 @@ let chartObj = new Chart(ctx, {
 });
 let mapObj;
 let selectedId = '';
+let markers = [];
 
 function initMap() {
     mapObj = new google.maps.Map(document.getElementById('map'), {
@@ -48,6 +49,11 @@ function initMap() {
 
 function updateMapMarkers() {
     axios.get('/api/list').then(function(res) {
+        for (let i in markers) {
+            let marker = markers[i];
+            marker.setMap(null);
+        }
+        markers = [];
         for (let i in res.data) {
             let data = res.data[i];
             let colorIndex = Math.floor(
@@ -74,6 +80,7 @@ function updateMapMarkers() {
                     updateChart(id);
                 };
             }(data.id));
+            markers.push(marker);
         }
     });
 }
