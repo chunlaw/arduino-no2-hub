@@ -1,4 +1,4 @@
-require("!style-loader!css-loader!../css/style.css");
+require('!style-loader!css-loader!../css/style.css');
 import axios from 'axios';
 import Chart from 'chart.js';
 
@@ -14,21 +14,9 @@ const MIN = 0.23;
 const MAX = 0.34;
 const REFRESH_INTERVAL = 10;
 
-let ctx = document.getElementById("chart");
-let chartObj = new Chart(ctx, {
-    type: 'bar',
-    data: [],
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true,
-                    max: MAX
-                }
-            }]
-        }
-    }
-});
+let ctx = document.getElementById('chart');
+let chartObj = null;
+ctx.style.display = 'none';
 let mapObj;
 let selectedId = '';
 let markers = [];
@@ -66,7 +54,7 @@ function updateMapMarkers() {
                 icon: {
                     fillColor: getColor(data.mean).bg,
                     fillOpacity: 0.9,
-                    path: "M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z"
+                    path: 'M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z'
                 },
                 label: {
                     color: getColor(data.mean).fg,
@@ -87,21 +75,31 @@ function updateMapMarkers() {
 
 function updateChart(id) {
     axios.get('/api/get?id=' + id + '&page=1&per-page=80').then(function(res) {
-        let data = res.data;
-        let ctx = document.getElementById("chart");
+        ctx.style.display = 'block';
 
-        chartObj.destroy();
+        let data = res.data;
+        chartObj && chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: data.map(function(a){ return getTimeDisplay(a.timestamp); }),
                 datasets: [{
-                    label: 'hihi',
-                    data: data.map(function(a){ return a.mean; }),
+                    data: data.map(function(a){ return a.mean.toFixed(3); }),
                     backgroundColor: data.map(function(a){ return getColor(a.mean).bg; })
                 }]
             },
             options: {
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    displayColors: false,
+                    callbacks: {
+                        label: function(item, data) {
+                            return item.yLabel;
+                        }
+                    }
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
