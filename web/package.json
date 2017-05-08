@@ -4,7 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV=production webpack -p --progress --color && node server.js",
+    "start": "NODE_ENV=production webpack -p --progress --color && pm2 start server.js",
+    "stop": "pm2 stop server.js",
+    "restart": "pm2 restart server.js",
     "dev": "NODE_ENV=development nodemon server.js",
     "watch": "NODE_ENV=development webpack --progress --color --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,18 +15,19 @@
   "license": "GPL-3.0",
   "dependencies": {
     "axios": "^0.16.0",
-    "chart.js": "^2.5.0",
-    "express": "^4.15.2",
-    "sqlite3": "^3.1.8"
-  },
-  "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^6.4.1",
     "babel-preset-env": "^1.3.3",
+    "chart.js": "^2.5.0",
     "css-loader": "^0.28.0",
+    "express": "^4.15.2",
     "mustache-express": "^1.2.4",
     "nodemon": "^1.11.0",
-    "style-loader": "^0.16.1",
+    "pm2": "^2.4.6",
+    "sqlite3": "^3.1.8",
     "webpack": "^2.3.2"
+  },
+  "devDependencies": {
+    "style-loader": "^0.16.1"
   }
 }
