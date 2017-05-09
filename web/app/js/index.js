@@ -77,7 +77,7 @@ function updateChart(id) {
     axios.get('/api/get?id=' + id + '&page=1&per-page=80').then(function(res) {
         ctx.style.display = 'block';
 
-        let data = res.data;
+        let data = res.data.reverse();
         chartObj && chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'bar',

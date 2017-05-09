@@ -82,7 +82,7 @@ app.get('/api/get', function(req, res) {
         (SELECT id, mean, timestamp
         FROM no2_data
         WHERE id = $id
-        ORDER BY timestamp ASC) AS nd
+        ORDER BY timestamp DESC) AS nd
         INNER JOIN sensor_location sl
         ON nd.id = sl.id
         LIMIT $offset, $limit`,
