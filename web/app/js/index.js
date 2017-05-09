@@ -1,18 +1,13 @@
 require('!style-loader!css-loader!../css/style.css');
 import axios from 'axios';
 import Chart from 'chart.js';
+import constants from './constants.js';
 
-const COLORS = [
-    {bg: 'green', fg: 'white'},
-    {bg: 'yellow', fg: 'black'},
-    {bg: 'orange', fg: 'black'},
-    {bg: 'red', fg: 'white'},
-    {bg: 'purple', fg: 'white'},
-    {bg: 'black', fg: 'white'}
-];
-const MIN = 0.0;
-const MAX = 1.0;
-const REFRESH_INTERVAL = 10;
+const COLORS = constants.COLORS;
+const MIN = constants.MIN;
+const MAX = constants.MAX;
+const REFRESH_INTERVAL = constants.REFRESH_INTERVAL;
+const PAGE_SIZE = constants.PAGE_SIZE;
 
 let ctx = document.getElementById('chart');
 let chartObj = null;
@@ -74,7 +69,8 @@ function updateMapMarkers() {
 }
 
 function updateChart(id) {
-    axios.get('/api/get?id=' + id + '&page=1&per-page=80').then(function(res) {
+    var pageSize = PAGE_SIZE;
+    axios.get('/api/get?id=' + id + '&page=1&per-page=' + pageSize).then(function(res) {
         ctx.style.display = 'block';
 
         let data = res.data.reverse();
@@ -117,7 +113,8 @@ function getColor(i) {
     let colorIndex = Math.floor(
         COLORS.length * (i - MIN) / (MAX - MIN)
     );
-    return COLORS[colorIndex];
+    let color = COLORS[colorIndex];
+    return color ? color : constants.DEFAULT_COLOR;
 }
 
 function addLeadingZeros(number, zeroCount) {
