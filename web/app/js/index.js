@@ -10,8 +10,8 @@ const COLORS = [
     {bg: 'purple', fg: 'white'},
     {bg: 'black', fg: 'white'}
 ];
-const MIN = 0.23;
-const MAX = 0.34;
+const MIN = 0.0;
+const MAX = 1.0;
 const REFRESH_INTERVAL = 10;
 
 let ctx = document.getElementById('chart');
