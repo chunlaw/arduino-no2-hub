@@ -25,7 +25,7 @@ class DbInstance(object):
         sensors = self.c.fetchall()
         for sensor in sensors:
             if sensor[1] is None:
-                self.c.execute('UPDATE sensor_location set uuid = ? where id = ?', (str(uuid.uuid4()),sensor[0]) )
+                self.c.execute('UPDATE sensor_location set uuid = ? where id = ?', (str(uuid.uuid4()),sensor[0],) )
 
     def insert( self, data ):
         self.c.execute('SELECT id FROM sensor_location WHERE uuid = ?', (data["id"],) )
@@ -47,7 +47,7 @@ class DbInstance(object):
         device = self.c.fetchone()
         if device is None:
             return False
-        self.c.execute("UPDATE sensor_location set chat_id = NULL where chat_id = ?", (chat_id, chat_id,))
+        self.c.execute("UPDATE sensor_location set chat_id = NULL where chat_id = ?", (chat_id,))
 
         self.c.execute("INSERT or replace INTO sensor_location (id, uuid, chat_id, lat, long) VALUES ((select id from sensor_location where uuid = ?), ?, ?, coalesce(?,(select lat from sensor_location where uuid = ?)), coalesce(?,(select long from sensor_location where uuid = ?)))", (uuid, uuid, chat_id, lat, uuid, longi, uuid))
         self.commit()
@@ -65,7 +65,7 @@ class DbInstance(object):
 
     def getChatId(self, id):
         print type(id)
-        self.c.execute('SELECT chat_id, uuid FROM sensor_location where id = ?', (id,))
+        self.c.execute('SELECT chat_id, uuid FROM sensor_location where uuid = ?', (id,))
         return self.c.fetchone()
 
     def insertNewDevice(self, device_id):

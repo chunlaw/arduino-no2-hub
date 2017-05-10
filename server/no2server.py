@@ -38,8 +38,8 @@ class No2Server:
         mqtt_client.username_pw_set ( user, password )
         mqtt_client.on_connect = on_connect
         mqtt_client.on_message = on_message
-        tbot = No2Bot("no2.db")
-        tbot.run()
+        self.tbot = No2Bot("no2.db")
+        self.tbot.run()
 
         try:
             mqtt_client.connect(self.config.get("MQTT", "hostname"))
@@ -52,7 +52,7 @@ class No2Server:
             timediff = timestamp - self.no2_con[device_id][0][1]
             if timediff >= 600:
                 print "%s is now connected" % device_id
-                self.tbot.sendConnectionMessage(id, 0)
+                self.tbot.sendConnectionMessage(device_id, 0)
                 self.no2_con[device_id] = []
             elif timediff >= 60:
                 self.saveNo2 ( device_id, self.no2_con[device_id] )
