@@ -1,6 +1,7 @@
 require('!style-loader!css-loader!../css/style.css');
 import axios from 'axios';
 import Chart from 'chart.js';
+import Vue from 'vue';
 import constants from './constants.js';
 
 const COLORS = constants.COLORS;
@@ -132,5 +133,20 @@ function getTimeDisplay(timestamp) {
     let year = dateTime.getFullYear();
     return `${day}-${month}-${year} ${hour}:${minute}:${second}`;
 }
+
+new Vue({
+    el: '#panel',
+    data: {
+        show: false
+    },
+    computed: {
+        panelClass: function() {
+            return {
+                'panel-show': this.show,
+                'panel-hide': !this.show
+            };
+        }
+    }
+});
 
 window.initMap = initMap;

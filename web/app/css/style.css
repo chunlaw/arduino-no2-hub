@@ -19,3 +19,36 @@
     width: 100%;
     height: 100%;
 }
+
+#panel {
+    position: fixed;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+#panel > * {
+    display: inline-block;
+}
+
+#panel > button {
+    position: absolute;
+    left: 300px;
+    top: 0;
+}
+
+.panel-hide {
+  transform: translateX(-300px);
+  transition: all .3s;
+}
+
+.panel-show {
+  transform: translateX(0px);
+  transition: all .3s;
+}
+
+.panel-content {
+    height: 100%;
+    width: 300px;
+    background-color: red;
+}

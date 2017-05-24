@@ -12,18 +12,18 @@ var server = app.listen(8080, function () {
    var host = server.address().address;
    var port = server.address().port;
    console.log("listening at http://%s:%s", host, port);
-})
+});
 
 app.engine('mustache', mustacheExpress());
 app.set('view engine', 'mustache');
 
 app.use('/static', express.static('app/public'));
-app.set('views', 'app/mustache/')
+app.set('views', 'app/mustache/');
 
 app.get('/', function(req, res) {
     var bundleFile = NODE_ENV === 'production' ? 'bundle.min.js' : 'bundle.js';
     res.render('index.mustache', {bundle: bundleFile});
-})
+});
 
 app.get('/api/list', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
