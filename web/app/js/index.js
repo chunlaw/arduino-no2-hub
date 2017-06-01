@@ -41,15 +41,12 @@ function updateMapMarkers() {
         for (let i in res.data) {
             let data = res.data[i];
             let mean = unitConversion(data.mean);
-            let colorIndex = Math.floor(
-                COLORS.length * (mean - MIN) / (MAX - MIN)
-            );
             let marker = new google.maps.Marker({
                 position: {lat: data.lat, lng: data.long},
                 map: mapObj,
                 label: new google.maps.Point(0, 30),
                 icon: {
-                    fillColor: getColor(data.mean).bg,
+                    fillColor: getColor(unitConversion(data.mean)).bg,
                     fillOpacity: 0.9,
                     path: 'M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z'
                 },
@@ -114,9 +111,26 @@ function updateChart(id) {
 }
 
 function getColor(i) {
-    let colorIndex = Math.floor(
-        COLORS.length * (i - MIN) / (MAX - MIN)
-    );
+    let colorIndex = 0;
+    if (constants.UNIT === 'ug/m3') {
+        if (i < 40) {
+            colorIndex = 0;
+        } else if (i >= 40 && i < 150){
+            colorIndex = 1;
+        } else if (i >= 150 && i < 200){
+            colorIndex = 2;
+        } else if (i >= 200 && i < 500){
+            colorIndex = 3;
+        } else if (i >= 500 && i < 1000){
+            colorIndex = 4;
+        } else {
+            colorIndex = 5;
+        }
+    } else {
+        colorIndex = Math.floor(
+            COLORS.length * (i - MIN) / (MAX - MIN)
+        );
+    }
     let color = COLORS[colorIndex];
     return color ? color : constants.DEFAULT_COLOR;
 }
