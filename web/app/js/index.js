@@ -5,8 +5,8 @@ import Vue from 'vue';
 import constants from './constants.js';
 
 const COLORS = constants.COLORS;
-const MIN = constants.MIN;
-const MAX = constants.MAX;
+const MIN = unitConversion(constants.MIN);
+const MAX = unitConversion(constants.MAX);
 const REFRESH_INTERVAL = constants.REFRESH_INTERVAL;
 const PAGE_SIZE = constants.PAGE_SIZE;
 
@@ -40,8 +40,9 @@ function updateMapMarkers() {
         markers = [];
         for (let i in res.data) {
             let data = res.data[i];
+            let mean = unitConversion(data.mean);
             let colorIndex = Math.floor(
-                COLORS.length * (data.mean - MIN) / (MAX - MIN)
+                COLORS.length * (mean - MIN) / (MAX - MIN)
             );
             let marker = new google.maps.Marker({
                 position: {lat: data.lat, lng: data.long},
@@ -81,8 +82,10 @@ function updateChart(id) {
             data: {
                 labels: data.map(function(a){ return getTimeDisplay(a.timestamp); }),
                 datasets: [{
-                    data: data.map(function(a){ return a.mean.toFixed(3); }),
-                    backgroundColor: data.map(function(a){ return getColor(a.mean).bg; })
+                    data: data.map(function(a){
+                        return unitConversion(a.mean).toFixed(3);
+                    }),
+                    backgroundColor: data.map(function(a){ return getColor(unitConversion(a.mean)).bg; })
                 }]
             },
             options: {
@@ -132,6 +135,13 @@ function getTimeDisplay(timestamp) {
     let month = addLeadingZeros(dateTime.getMonth() + 1, 2);
     let year = dateTime.getFullYear();
     return `${day}-${month}-${year} ${hour}:${minute}:${second}`;
+}
+
+function unitConversion(value) {
+    if (constants.UNIT === 'ug/m3') {
+        return value * 1800;
+    }
+    return value;
 }
 
 new Vue({

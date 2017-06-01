@@ -12,4 +12,5 @@ module.exports = {
     "MAX": 1.0,
     "REFRESH_INTERVAL": 10, // In second,
     "PAGE_SIZE": 1440, // 24 hour assume 1 update per min
-}
+    "UNIT": "ug/m3" // PPM or ug/m3
+};
