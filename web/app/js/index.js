@@ -10,65 +10,90 @@ const MAX = unitConversion(constants.MAX);
 const REFRESH_INTERVAL = constants.REFRESH_INTERVAL;
 const PAGE_SIZE = constants.PAGE_SIZE;
 
-let ctx = document.getElementById('chart');
 let chartObj = null;
-ctx.style.display = 'none';
 let mapObj;
 let selectedId = '';
-let markers = [];
+let markers = {};
+
+let infoWindow;
 
 function initMap() {
     mapObj = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 22.340880, lng: 114.114522},
         zoom: 11
     });
-    updateMapMarkers();
+    infoWindow = new google.maps.InfoWindow({
+        content: '<canvas id="chart" width="1024px" height="200px"></canvas>'
+    });
+    initMapMarkers();
     setInterval(function() {
-        updateMapMarkers();
+        updateMapMarkerValues();
         if (selectedId) {
             updateChart(selectedId);
         }
     }, REFRESH_INTERVAL * 1000);
 }
 
-function updateMapMarkers() {
+function updateMapMarkerValues() {
+   axios.get('/api/list').then(function(res) {
+        for (let i in res.data) {
+            let data = res.data[i];
+            let mean = unitConversion(data.mean);
+            let marker = markers[data.id];
+            let color = getColor(mean);
+
+            marker.icon.fillColor = color.bg;
+            marker.label.color = color.fg;
+            marker.label.text = '' + mean.toFixed(2);
+            // force redraw
+            marker.setShape();
+        }
+   });
+}
+
+function initMapMarkers() {
     axios.get('/api/list').then(function(res) {
         for (let i in markers) {
             let marker = markers[i];
             marker.setMap(null);
         }
-        markers = [];
+        markers = {};
         for (let i in res.data) {
             let data = res.data[i];
             let mean = unitConversion(data.mean);
+            let color = getColor(mean);
             let marker = new google.maps.Marker({
                 position: {lat: data.lat, lng: data.long},
                 map: mapObj,
                 label: new google.maps.Point(0, 30),
                 icon: {
-                    fillColor: getColor(unitConversion(data.mean)).bg,
+                    fillColor: color.bg,
                     fillOpacity: 0.9,
                     path: 'M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z'
                 },
                 label: {
-                    color: getColor(data.mean).fg,
+                    color: color.fg,
                     fontWeight: 'bold',
-                    text: '' + data.mean.toFixed(2)
+                    text: '' + mean.toFixed(2)
                 }
             });
             marker.addListener('click', function(id) {
                 return function() {
                     selectedId = id;
+                    infoWindow.open(mapObj, marker);
                     updateChart(id);
                 };
             }(data.id));
-            markers.push(marker);
+            markers[data.id] = marker;
         }
     });
 }
 
 function updateChart(id) {
     var pageSize = PAGE_SIZE;
+    console.log("update");
+    var ctx = document.getElementById('chart');
+    ctx.style.display = 'none';
     axios.get('/api/get?id=' + id + '&page=1&per-page=' + pageSize).then(function(res) {
         ctx.style.display = 'block';
 
