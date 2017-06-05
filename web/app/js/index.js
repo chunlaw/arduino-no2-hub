@@ -10,6 +10,7 @@ const MAX = unitConversion(constants.MAX);
 const REFRESH_INTERVAL = constants.REFRESH_INTERVAL;
 const PAGE_SIZE = constants.PAGE_SIZE;
 
+let refreshInterval = null;
 let chartObj = null;
 let mapObj;
 let selectedId = '';
@@ -26,7 +27,7 @@ function initMap() {
         content: '<canvas id="chart" width="1024px" height="200px"></canvas>'
     });
     initMapMarkers();
-    setInterval(function() {
+    refreshInterval = setInterval(function() {
         updateMapMarkerValues();
         if (selectedId) {
             updateChart(selectedId);
@@ -69,7 +70,7 @@ function initMapMarkers() {
                 icon: {
                     fillColor: color.bg,
                     fillOpacity: 0.9,
-                    path: 'M-20 -10 L20 -10 L20 10 L4 10 L0 20 L-4 10 L-20 10 Z'
+                    path: 'M-30 -10 L30 -10 L30 10 L4 10 L0 20 L-4 10 L-30 10 Z'
                 },
                 label: {
                     color: color.fg,
@@ -82,6 +83,10 @@ function initMapMarkers() {
                     selectedId = id;
                     infoWindow.open(mapObj, marker);
                     updateChart(id);
+                    infoWindow.addListener('closeclick', function() {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    });
                 };
             }(data.id));
             markers[data.id] = marker;
@@ -91,7 +96,6 @@ function initMapMarkers() {
 
 function updateChart(id) {
     var pageSize = PAGE_SIZE;
-    console.log("update");
     var ctx = document.getElementById('chart');
     ctx.style.display = 'none';
     axios.get('/api/get?id=' + id + '&page=1&per-page=' + pageSize).then(function(res) {
@@ -127,6 +131,10 @@ function updateChart(id) {
                         ticks: {
                             beginAtZero:true,
                             max: MAX
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: constants.UNIT === 'ug/m3' ? 'μg/m3' : 'ppm'
                         }
                     }]
                 }

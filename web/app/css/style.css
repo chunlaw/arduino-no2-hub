@@ -11,7 +11,6 @@
     vertical-align: bottom;
     display: inline-block;
     width: 10px;
-    background-color: red;
     margin: 2px;
 }
 
@@ -50,5 +49,9 @@
 .panel-content {
     height: 100%;
     width: 300px;
-    background-color: red;
+    background-color: #fff;
+}
+
+.panel-content h2 {
+    
 }
