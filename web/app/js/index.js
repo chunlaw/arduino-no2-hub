@@ -98,7 +98,7 @@ function updateChart(id) {
     var pageSize = PAGE_SIZE;
     var ctx = document.getElementById('chart');
     ctx.style.display = 'none';
-    axios.get('/api/get?id=' + id + '&page=1&per-page=' + pageSize).then(function(res) {
+    axios.get('/api/get2?id=' + id + '&hour=' + 24).then(function(res) {
         ctx.style.display = 'block';
 
         let data = res.data.reverse();

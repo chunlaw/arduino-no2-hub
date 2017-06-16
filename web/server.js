@@ -50,7 +50,7 @@ app.get('/api/list', function(req, res) {
     );
 });
 
-app.get('/api/get', function(req, res) {
+app.get('/api/get-by-page', function(req, res) {
     let id = req.query.id;
     let page = req.query.page || '1';
     let perPage = req.query['per-page'] || '80';
@@ -90,6 +90,47 @@ app.get('/api/get', function(req, res) {
             $id: id,
             $offset: offset,
             $limit: perPage
+        },
+        function(err, rows) {
+            if (err) {
+                console.log(err);
+            }
+            res.json(rows);
+        }
+    );
+});
+
+app.get('/api/get', function(req, res) {
+    let id = req.query.id;
+    let hour = req.query.hour || '1';
+
+    if (!isNormalInteger(id)) {
+        res.status(400).send({
+            msg: 'Invalid id'
+        });
+    }
+    if (!isNormalInteger(hour)) {
+        res.status(400).json({
+            msg: 'Invalid hour'
+        });
+    }
+
+    hour = parseInt(hour);
+    let timeDiff = (Date.now() - hour * 3600 * 1000) / 1000;
+
+    db.all(
+        `SELECT nd.mean AS mean,
+        nd.timestamp AS timestamp
+        FROM
+        (SELECT id, mean, timestamp
+        FROM no2_data
+        WHERE id = $id
+        AND ${timeDiff} <= timestamp
+        ORDER BY timestamp DESC) AS nd
+        INNER JOIN sensor_location sl
+        ON nd.id = sl.id`,
+        {
+            $id: id
         },
         function(err, rows) {
             if (err) {
