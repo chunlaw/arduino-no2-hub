@@ -5,6 +5,7 @@ var process = require('process');
 var config = require('./config.js');
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
+const SCALE_FACTOR = 0.15;
 var db = new sqlite3.Database(config.dbPath);
 var app = express();
 
@@ -29,7 +30,7 @@ app.get('/api/list', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     db.all(
         `SELECT sl.id AS id,
-        nd.mean AS mean,
+        nd.mean * ${SCALE_FACTOR} AS mean,
         nd.timestamp AS timestamp,
         sl.lat AS lat,
         sl.long AS long
@@ -76,7 +77,7 @@ app.get('/api/get-by-page', function(req, res) {
     let offset = (page - 1) * perPage;
 
     db.all(
-        `SELECT nd.mean AS mean,
+        `SELECT nd.mean * ${SCALE_FACTOR} AS mean,
         nd.timestamp AS timestamp
         FROM
         (SELECT id, mean, timestamp
