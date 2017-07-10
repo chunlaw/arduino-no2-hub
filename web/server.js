@@ -104,20 +104,39 @@ app.get('/api/get-by-page', function(req, res) {
 app.get('/api/get', function(req, res) {
     let id = req.query.id;
     let hour = req.query.hour || '1';
+    let from = req.query.from;
+    let to = req.query.to;
 
     if (!isNormalInteger(id)) {
         res.status(400).send({
-            msg: 'Invalid id'
+            msg: 'Invalid \'id\''
         });
     }
-    if (!isNormalInteger(hour)) {
+    if (!!hour && !isNormalInteger(hour)) {
         res.status(400).json({
-            msg: 'Invalid hour'
+            msg: 'Invalid \'hour\''
+        });
+    }
+    if (!!from && !isNormalInteger(from)) {
+        res.status(400).json({
+            msg: 'Invalid \'from\''
+        });
+    }
+    if (!!to && !isNormalInteger(to)) {
+        res.status(400).json({
+            msg: 'Invalid \'to\''
         });
     }
 
     hour = parseInt(hour);
-    let timeDiff = (Date.now() - hour * 3600 * 1000) / 1000;
+
+    if (!from || !to) {
+        from = (Date.now() - 3600 * 1000) / 1000;
+        to = Date.now() / 1000;
+        if (!!hour) {
+            from = (Date.now() - hour * 3600 * 1000) / 1000;
+        }
+    }
 
     db.all(
         `SELECT nd.mean AS mean,
@@ -126,12 +145,15 @@ app.get('/api/get', function(req, res) {
         (SELECT id, mean, timestamp
         FROM no2_data
         WHERE id = $id
-        AND ${timeDiff} <= timestamp
+        AND timestamp >= $from
+        AND timestamp <= $to
         ORDER BY timestamp DESC) AS nd
         INNER JOIN sensor_location sl
         ON nd.id = sl.id`,
         {
-            $id: id
+            $id: id,
+            $from: from,
+            $to: to
         },
         function(err, rows) {
             if (err) {
