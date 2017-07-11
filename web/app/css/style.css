@@ -55,3 +55,11 @@
 .panel-content h2 {
     
 }
+
+.dp-below {
+    z-index: 10001;
+}
+
+#app .gm-style-iw {
+    overflow: visible;
+}

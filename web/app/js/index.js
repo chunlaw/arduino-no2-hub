@@ -1,7 +1,9 @@
+require('!style-loader!css-loader!tiny-date-picker/tiny-date-picker.min.css');
 require('!style-loader!css-loader!../css/style.css');
 import axios from 'axios';
 import Chart from 'chart.js';
 import Vue from 'vue';
+import TinyDatePicker from 'tiny-date-picker';
 import constants from './constants.js';
 
 const COLORS = constants.COLORS;
@@ -15,7 +17,37 @@ let chartObj = null;
 let mapObj;
 let selectedId = '';
 let markers = {};
-
+let infoWindowTemplate = `
+<div style="width:650px;height:300px;">
+    <canvas id="chart" width="480px" height="150px"></canvas>
+    <br />
+    <div style="text-align:center">
+        <input class="date-picker from" />至
+        <input class="date-picker to" />
+        <input id="update_date_btn" type="button" value="更新" />
+    </div>
+</div>
+`;
+let dpConfig = {
+    mode: 'dp-below',
+    months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+    days: ['日', '一', '二', '三', '四', '五', '六'],
+    today: '今天',
+    clear: '清除',
+    close: '關閉',
+    format: function(date) {
+        let dateTime = new Date(date);
+        let second = addLeadingZeros(dateTime.getSeconds(),2);
+        let minute = addLeadingZeros(dateTime.getMinutes(), 2);
+        let hour = addLeadingZeros(dateTime.getHours(), 2);
+        let day = addLeadingZeros(dateTime.getDate(), 2);
+        let month = addLeadingZeros(dateTime.getMonth() + 1, 2);
+        let year = dateTime.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+};
+let dpFrom;
+let dpTo;
 let infoWindow;
 
 function initMap() {
@@ -24,15 +56,15 @@ function initMap() {
         zoom: 11
     });
     infoWindow = new google.maps.InfoWindow({
-        content: '<canvas id="chart" width="1024px" height="200px"></canvas>'
+        content: infoWindowTemplate
     });
     initMapMarkers();
-    refreshInterval = setInterval(function() {
-        updateMapMarkerValues();
-        if (selectedId) {
-            updateChart(selectedId);
-        }
-    }, REFRESH_INTERVAL * 1000);
+    // refreshInterval = setInterval(function() {
+    //     updateMapMarkerValues();
+    //     if (selectedId) {
+    //         updateChart(selectedId);
+    //     }
+    // }, REFRESH_INTERVAL * 1000);
 }
 
 function updateMapMarkerValues() {
@@ -83,9 +115,22 @@ function initMapMarkers() {
                     selectedId = id;
                     infoWindow.open(mapObj, marker);
                     updateChart(id);
+                    if (!dpFrom) {
+                        dpFrom = TinyDatePicker(document.querySelector('.date-picker.from'), dpConfig);
+                    }
+                    if (!dpTo) {
+                        dpTo = TinyDatePicker(document.querySelector('.date-picker.To'), dpConfig);
+                    }
+                    let onUpdateDate = function() {
+                        let from = new Date(document.querySelector('.date-picker.from').value);
+                        let to = new Date(document.querySelector('.date-picker.to').value);
+                        updateChart(id, from.getTime() / 1000, to.getTime() / 1000);
+                    };
+                    document.querySelector('#update_date_btn').addEventListener('click', onUpdateDate);
                     infoWindow.addListener('closeclick', function() {
                         clearInterval(refreshInterval);
                         refreshInterval = null;
+                        document.querySelector('#update_date_btn').removeEventListener('click', onUpdateDate);
                     });
                 };
             }(data.id));
@@ -94,11 +139,17 @@ function initMapMarkers() {
     });
 }
 
-function updateChart(id) {
-    var pageSize = PAGE_SIZE;
-    var ctx = document.getElementById('chart');
+function updateChart(id, from, to) {
+    let pageSize = PAGE_SIZE;
+    let ctx = document.getElementById('chart');
     ctx.style.display = 'none';
-    axios.get('/api/get?id=' + id + '&hour=' + 24).then(function(res) {
+    let requestUrl = '/api/get?id=' + id;
+    if (!!from && !!to) {
+        requestUrl += '&from=' + from + '&to=' + to;
+    } else {
+        requestUrl += '&hour=' + 24;
+    }
+    axios.get(requestUrl).then(function(res) {
         ctx.style.display = 'block';
 
         let data = res.data.reverse();
@@ -181,7 +232,7 @@ function getTimeDisplay(timestamp) {
     let day = addLeadingZeros(dateTime.getDate(), 2);
     let month = addLeadingZeros(dateTime.getMonth() + 1, 2);
     let year = dateTime.getFullYear();
-    return `${day}-${month}-${year} ${hour}:${minute}:${second}`;
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
 function unitConversion(value) {
