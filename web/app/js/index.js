@@ -197,18 +197,20 @@ function updateChart(id, from, to) {
 function getColor(i) {
     let colorIndex = 0;
     if (constants.UNIT === 'ug/m3') {
-        if (i < 40) {
+        if (i < 20) {
             colorIndex = 0;
-        } else if (i >= 40 && i < 150){
+        } else if (i >= 40 && i < 60){
             colorIndex = 1;
-        } else if (i >= 150 && i < 200){
+        } else if (i >= 60 && i < 80){
             colorIndex = 2;
-        } else if (i >= 200 && i < 500){
+        } else if (i >= 80 && i < 100){
             colorIndex = 3;
-        } else if (i >= 500 && i < 1000){
+        } else if (i >= 100 && i < 120){
             colorIndex = 4;
-        } else {
+        } else if (i >= 120 && i < 140){
             colorIndex = 5;
+        } else {
+            colorIndex = 6;
         }
     } else {
         colorIndex = Math.floor(
@@ -237,7 +239,7 @@ function getTimeDisplay(timestamp) {
 
 function unitConversion(value) {
     if (constants.UNIT === 'ug/m3') {
-        return value * 1800;
+        return value * 270;
     }
     return value;
 }
